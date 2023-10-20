@@ -1,0 +1,43 @@
+/* SM3测试*/
+#include <stdio.h>
+#include <string.h>
+#include <openssl/evp.h>
+
+int main() {
+    EVP_MD_CTX *mdctx;
+    const EVP_MD *md;
+    unsigned char md_value[EVP_MAX_MD_SIZE];
+    unsigned int md_len;
+    
+    OpenSSL_add_all_digests();
+    
+    md = EVP_sm3(); 
+    
+    if (md == NULL) {
+        printf("Error: SM3 not supported.\n");
+        return 1;
+    }
+    
+    mdctx = EVP_MD_CTX_new();
+    
+    if (1 != EVP_DigestInit_ex(mdctx, md, NULL))
+        return 1;
+
+    const char *data = "20211419熊悠越";
+    
+    if (1 != EVP_DigestUpdate(mdctx, data, strlen(data)))
+        return 1;
+    
+    if (1 != EVP_DigestFinal_ex(mdctx, md_value, &md_len))
+        return 1;
+    
+    printf("SM3: ");
+    for (int i = 0; i < md_len; i++) {
+        printf("%02x", md_value[i]);
+    }
+    printf("\n");
+
+    EVP_MD_CTX_free(mdctx);
+    
+    return 0;
+}
